@@ -78,8 +78,6 @@ Complete a month cost analysis of each Azure resource to give an estimate total 
 Azure Storage Account amount Estimated via Azure pricing page 
 
 ## Architecture Explanation
-This is a placeholder section where you can provide an explanation and reasoning for your architecture selection for both the Azure Web App and Azure Function.
-
 
 Azure Web App Architecture
 
