@@ -2,10 +2,11 @@ from app import app, db, queue_client
 from datetime import datetime
 from app.models import Attendee, Conference, Notification
 from flask import render_template, session, request, redirect, url_for, flash, make_response, session
-from azure.servicebus import Message
+from azure.servicebus import Message, ServiceBusClient
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import logging
+
 
 @app.route('/')
 def index():
@@ -30,7 +31,8 @@ def registration():
         try:
             db.session.add(attendee)
             db.session.commit()
-            session['message'] = 'Thank you, {} {}, for registering!'.format(attendee.first_name, attendee.last_name)
+            session['message'] = 'Thank you, {} {}, for registering!'.format(
+                attendee.first_name, attendee.last_name)
             return redirect('/Registration')
         except:
             logging.error('Error occured while saving your information')
@@ -41,7 +43,8 @@ def registration():
             session.pop('message', None)
             return render_template('registration.html', message=message)
         else:
-             return render_template('registration.html')
+            return render_template('registration.html')
+
 
 @app.route('/Attendees')
 def attendees():
@@ -54,6 +57,7 @@ def notifications():
     notifications = Notification.query.order_by(Notification.id).all()
     return render_template('notifications.html', notifications=notifications)
 
+
 @app.route('/Notification', methods=['POST', 'GET'])
 def notification():
     if request.method == 'POST':
@@ -65,38 +69,47 @@ def notification():
 
         try:
             db.session.add(notification)
+            # db.session.flush()
             db.session.commit()
 
+            inserted_notification = notification.id
+            logging.info("Saved notification with id", inserted_notification)
+            print("Saved notification with id", inserted_notification)
+
+            # Fetch last inserted ID
             ##################################################
-            ## TODO: Refactor This logic into an Azure Function
-            ## Code below will be replaced by a message queue
+            # TODO: Refactor This logic into an Azure Function - Done
+            # Code below will be replaced by a message queue
             #################################################
-            attendees = Attendee.query.all()
+            # attendees = Attendee.query.all()
 
-            for attendee in attendees:
-                subject = '{}: {}'.format(attendee.first_name, notification.subject)
-                send_email(attendee.email, subject, notification.message)
+            # for attendee in attendees:
+            #    subject = 'Hi {}: {}'.format(
+            #        attendee.first_name, notification.subject)
+            #    logging.info('subject : %s ', subject)
+            #    #send_email(attendee.email, subject, notification.message)
 
-            notification.completed_date = datetime.utcnow()
-            notification.status = 'Notified {} attendees'.format(len(attendees))
-            db.session.commit()
-            # TODO Call servicebus queue_client to enqueue notification ID
-
+            # TODO Call servicebus queue_client to enqueue notification ID - Done
+            message1 = '{}'.format(inserted_notification)
+            to_send_msg = Message(message1)
+            logging.info("to_send_msg", to_send_msg)
+            queue_status = queue_client.send(to_send_msg)
+            logging.info("notification saved to queue", queue_status)
             #################################################
-            ## END of TODO
+            # END of TODO
             #################################################
 
             return redirect('/Notifications')
-        except :
-            logging.error('log unable to save notification')
+        except Exception as err:
+            logging.exception("Exception occured", exc_info=True)
+            return redirect('/Notifications')
 
     else:
         return render_template('notification.html')
 
 
-
 def send_email(email, subject, body):
-    if not app.config.get('SENDGRID_API_KEY')
+    if not app.config.get('SENDGRID_API_KEY'):
         message = Mail(
             from_email=app.config.get('ADMIN_EMAIL_ADDRESS'),
             to_emails=email,

@@ -59,13 +59,37 @@ You will need to install the following locally:
 2. Re-deploy the web app to publish changes
 
 ## Monthly Cost Analysis
+-- My Account is on a Pay as you go subscription 
 Complete a month cost analysis of each Azure resource to give an estimate total cost using the table below:
 
-| Azure Resource | Service Tier | Monthly Cost |
-| ------------ | ------------ | ------------ |
-| *Azure Postgres Database* |     |              |
-| *Azure Service Bus*   |         |              |
-| ...                   |         |              |
+| Azure Resource                        | 	Service Tier                          		| Monthly Cost (USD)		|
+|-------------------------------------------------------------------------------------------------------------------
+|  *Azure Postgres Database*            |   Basic (Single instance, single core)		|   25.32      				|
+|  *Azure Service Bus*   				|   Basic          								|	0.05					|
+|  *Azure Function App*                 | 	Azure Function Consumption plan for Linux	|   13			       		|   
+|  *Azure Web App *                		| 	App service Plan (F1: Free)        			|   0          			 	| NB. Incase more resources are needed a basic B1 plan would be chosen whose cost would be 13 USD(minimum) per month 
+|  *Azure Storage Account *             |  General Purpose 	V2 LRS      				|   21          			| Estimated via Azure pricing page
 
 ## Architecture Explanation
 This is a placeholder section where you can provide an explanation and reasoning for your architecture selection for both the Azure Web App and Azure Function.
+
+
+Azure Web App Architecture
+
+The web app  - 
+1. A managed platform as a service azure web app approach is chosen for deploying the   web app. It is easy to deploy and choose the specific run time environments e.g language, server os type. This is a lightwweight service that doesnt need heavy compute resource. With a change in pricing tier we can verticaly scale the amount of resources assigned e,g ram & cpu while comfortably maintaing good levels of support. Were it a resource intensive web app I would have chosen a VM deployment approach.
+2. With  app service approach one is able to set the amount of hardware and app service plan which allows for cost control.  The free option within Dev/Test is chosen for this exercises. Other plans available include production and isolated.
+3. High availability and autoscaling is also supported.
+4.  
+
+ou can set the amount of hardware allocated to host your application, and cost varies based on the plan you choose. There are three different tiers
+
+Platform as a Service (PaaS) that allows a developer to focus on the application while Azure takes care of the infrastructure.
+
+Funtion App - Function as a service approach
+1. The function app will be ran as a managed service which leaves us to concentrate on building the business logic instead of managing servers.It is better than managing our own infrastructure which is mostly not fully utilised most of the times. 
+2. The function app approach is an on demand approach serverless approach which enables us to configure specific bits of code to run in response to specific events making for efficient computing. Each function app service endpoint responds to triggers from events. 
+An azure funtion app allows us to use an event based approach where a trigger fires an action using very little code. 
+	In our case we are able to trigger a send email action every time a valid message is put on the configured notification queue in the service bus.The message is a notification message id which is then used to fetch the actual message  from the database and send it to all conference attendees after customizing the subject.
+3. Since the subscription account is a pay as you go Account , a consumption app plan will work well in this set up since we only only charges for the runtime of our function app, and includes some free time per Azure subscription.
+4. The fucntion app approach makes it easy to break down functionality to specific APIs which are easy to deploy by uploading code or containers through azure cli or via VScode plugins
