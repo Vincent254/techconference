@@ -64,11 +64,18 @@ Complete a month cost analysis of each Azure resource to give an estimate total 
 
 | Azure Resource                        | 	Service Tier                          		| Monthly Cost (USD)		|
 |-------------------------------------------------------------------------------------------------------------------
+
 |  *Azure Postgres Database*            |   Basic (Single instance, single core)		|   25.32      				|
+
 |  *Azure Service Bus*   				|   Basic          								|	0.05					|
-|  *Azure Function App*                 | 	Azure Function Consumption plan for Linux	|   13			       		|   
-|  *Azure Web App *                		| 	App service Plan (F1: Free)        			|   0          			 	| NB. Incase more resources are needed a basic B1 plan would be chosen whose cost would be 13 USD(minimum) per month 
-|  *Azure Storage Account *             |  General Purpose 	V2 LRS      				|   21          			| Estimated via Azure pricing page
+
+|  *Azure Function App*                 | 	Azure Function Consumption plan for Linux	|   13			       		|  
+ 
+|  *Azure Web App *                		| 	App service Plan (F1: Free)        			|   0          			 	| 
+
+|  *Azure Storage Account *             |  General Purpose 	V2 LRS      				|   21          			| 
+
+Azure Storage Account amount Estimated via Azure pricing page 
 
 ## Architecture Explanation
 This is a placeholder section where you can provide an explanation and reasoning for your architecture selection for both the Azure Web App and Azure Function.
